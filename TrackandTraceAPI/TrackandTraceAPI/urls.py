@@ -17,16 +17,15 @@ Including another URLconf
 from django.contrib import admin
 import sys
 sys.path.append('/home/iman/Projects/TrackandTraceAPI/TrackandTraceAPI/')
-from ShipTrackWeather import views
+from ShipTrackWeather.views import WeatherShipmentView, home_page
 from ShipTrackWeather.swagger import urlpatterns as swagger_urls
 from django.urls import path
 
 
 urlpatterns = [
-    path('', views.home_page, name='home'),
-    path('shipment_result/', views.shipment_result, name='shipment_result'),
+    path('', home_page, name='home'),
+    path('weather_shipment/', WeatherShipmentView.as_view(), name='weather_shipment'),
     path("admin/", admin.site.urls),
-    path("weather/", views.weather_view, name="weather")
 ]
 
 urlpatterns += swagger_urls

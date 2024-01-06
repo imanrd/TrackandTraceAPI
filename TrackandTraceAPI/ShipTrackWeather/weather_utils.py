@@ -34,9 +34,10 @@ def get_weather_data(location, section="API"):
             if response.status_code == 200:
                 weather_data = response.json()
                 cache.set(location, weather_data, timeout=7200)
+                logger.info(f"Weather data is: {weather_data}")
                 return weather_data
             else:
-                # Log or handle the API request error
+                logger.warning(f"Not successful api request with code: {response.status_code}")
                 return None
     else:
         logger.warning(f"There is either no {CONFIG_FILE} file or no {section} section!")
