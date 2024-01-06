@@ -1,0 +1,22 @@
+import sys
+
+sys.path.append('/home/iman/Projects/TrackandTraceAPI/TrackandTraceAPI/')
+import logging
+
+
+def log_creator(name, file_name, level=logging.DEBUG):
+    local_logger = logging.getLogger(name)
+    local_logger.setLevel(level)
+
+    fh = logging.FileHandler(f"./{file_name}.log")
+
+    fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(fmt)
+    fh.setFormatter(formatter)
+
+    local_logger.addHandler(fh)
+    return local_logger
+
+
+logger = log_creator("code_info", "code_log")
+logger.info("System Started!")

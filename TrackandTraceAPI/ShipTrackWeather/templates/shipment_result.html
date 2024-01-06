@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shipment Results</title>
+</head>
+<body>
+    <h1>Shipment Results</h1>
+    {% if shipments %}
+        <ul>
+            {% for shipment in shipments %}
+                <li>
+                    Shipment: {{ shipment.tracking_number }} - {{ shipment.carrier }} - {{ shipment.status }}
+                    <ul>
+                        {% for article_name in shipment.article_names %}
+                            <li>Article: {{ article_name }}</li>
+                        {% endfor %}
+                        {% for status in shipment.statuses %}
+                            <li>Status: {{ status }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No shipment found for the given criteria.</p>
+    {% endif %}
+</body>
+</html>

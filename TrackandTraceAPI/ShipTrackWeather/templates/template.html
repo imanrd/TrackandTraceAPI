@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Enter Tracking Number and Carrier</h1>
+    <form action="{% url 'shipment_result' %}" method="GET">  <!-- Assuming URL name is 'shipment_result' -->
+        <label for="tracking_number">Tracking Number:</label>
+        <input type="text" id="tracking_number" name="tracking_number"><br><br>
+
+        <label for="carrier">Carrier:</label>
+        <input type="text" id="carrier" name="carrier"><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+</body>
+</html>

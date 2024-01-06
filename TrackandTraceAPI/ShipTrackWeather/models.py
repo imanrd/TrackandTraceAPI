@@ -12,7 +12,7 @@ class Shipment(models.Model):
     status = models.CharField(max_length=50)
 
     def __str__(self):
-        return f"{self.tracking_number} - {self.carrier}"
+        return f"{self.tracking_number} - {self.carrier} - {self.status}"
 
 
 class Article(models.Model):
