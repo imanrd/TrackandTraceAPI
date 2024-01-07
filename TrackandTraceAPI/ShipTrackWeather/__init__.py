@@ -1,6 +1,3 @@
-import sys
-
-sys.path.append('/home/iman/Projects/TrackandTraceAPI/TrackandTraceAPI/')
 import logging
 
 
