@@ -15,8 +15,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-import sys
-sys.path.append('/home/iman/Projects/TrackandTraceAPI/TrackandTraceAPI/')
 from ShipTrackWeather.views import WeatherShipmentView, home_page
 from ShipTrackWeather.swagger import urlpatterns as swagger_urls
 from django.urls import path
