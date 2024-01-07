@@ -3,11 +3,6 @@ from configparser import ConfigParser
 import requests
 from ShipTrackWeather import logger
 
-from configparser import ConfigParser
-import requests
-from django.core.cache import cache
-from ShipTrackWeather import logger
-
 
 class WeatherService:
     CONFIG_FILE = "environment.ini"
