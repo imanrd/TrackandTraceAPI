@@ -6,9 +6,25 @@ from ShipTrackWeather import logger
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from typing import Union, List
+from django.http import HttpRequest, HttpResponse
+from django.template.loader import render_to_string
 
 
-def get_receiver_city(shipments):
+def get_receiver_city(shipments: Union[List, None]) -> str:
+    """
+    Extracts the city from the receiver address of the first shipment.
+
+    Args:
+    - shipments: QuerySet of shipments.
+
+    Returns:
+    - str: City name extracted from the receiver address.
+
+    Raises:
+    - Exception: If no shipments are available or receiver address is missing.
+    """
+
     if shipments and shipments.first().receiver_address:
         receiver_address = shipments.first().receiver_address
         city = receiver_address.split(' ')[-2].strip()
@@ -16,17 +32,52 @@ def get_receiver_city(shipments):
     raise Exception("No shipments")
 
 
-def home_page(request):
+def home_page(request: HttpRequest) -> HttpResponse:
+    """
+    Renders the home page.
+
+    Args:
+    - request: HTTP request object.
+
+    Returns:
+    - HttpResponse: Rendered HTML template for the home page.
+    """
+
     return render(request, 'template.html')
 
 
 class WeatherShipmentView(View):
+    """
+    View for retrieving weather and shipment data.
+
+    Attributes:
+    - template_name (str): Name of the HTML template.
+    """
+
     template_name = 'weather_shipment.html'
 
-    def render_template(self, request):
+    def render_template(self, request: HttpRequest) -> HttpResponse:
+        """
+        Renders the HTML template.
+
+        Args:
+        - request: HTTP request object.
+
+        Returns:
+        - HttpResponse: Rendered HTML template.
+        """
         return render(request, self.template_name)
 
-    def get(self, request):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        """
+        Handles GET requests for the weather shipment view.
+
+        Args:
+        - request: HTTP request object.
+
+        Returns:
+        - HttpResponse: Rendered HTML template.
+        """
         logger.info("GET request received")
         return self.render_template(request)
 
@@ -49,7 +100,7 @@ class WeatherShipmentView(View):
                         Temperature: 7.14°C
                         Weather: overcast clouds""",
                     'shipments':
-                    """
+                        """
                     Shipment Details
                     Shipment: TN12345678 - DHL - in-transit
                     Shipment: TN12345678 - DHL - in-transit
@@ -58,7 +109,16 @@ class WeatherShipmentView(View):
             ),
         }
     ))
-    def post(self, request):
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """
+        Handles POST requests to retrieve weather and shipment data.
+
+        Args:
+        - request: HTTP request object.
+
+        Returns:
+        - HttpResponse: Rendered HTML template with weather and shipment data.
+        """
         logger.info("Post request received")
         tracking_number = request.POST.get('tracking_number')
         carrier = request.POST.get('carrier')
