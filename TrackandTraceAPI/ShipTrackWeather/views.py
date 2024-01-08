@@ -8,7 +8,6 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from typing import Union, List
 from django.http import HttpRequest, HttpResponse
-from django.template.loader import render_to_string
 
 
 def get_receiver_city(shipments: Union[List, None]) -> str:
