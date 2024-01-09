@@ -1,12 +1,15 @@
 from django.shortcuts import render
-from django.views import View
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from .weather_utils import WeatherService
 from .queries import get_shipment_by_tracking_number_and_carrier
 from ShipTrackWeather import logger
 from django.utils.decorators import method_decorator
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework import status
 from typing import Union, List
+from .serializers import ShipmentSerializer, TrackingCarrierSerializer
 from django.http import HttpRequest, HttpResponse
 
 
@@ -28,6 +31,7 @@ def get_receiver_city(shipments: Union[List, None]) -> str:
         receiver_address = shipments.first().receiver_address
         city = receiver_address.split(' ')[-2].strip()
         return city
+    logger.exception(f"Shipments: {shipments}")
     raise Exception("No shipments")
 
 
@@ -45,7 +49,7 @@ def home_page(request: HttpRequest) -> HttpResponse:
     return render(request, 'template.html')
 
 
-class WeatherShipmentView(View):
+class WeatherShipmentView(APIView):
     """
     View for retrieving weather and shipment data.
 
@@ -67,6 +71,44 @@ class WeatherShipmentView(View):
         """
         return render(request, self.template_name)
 
+    @method_decorator(name='get', decorator=swagger_auto_schema(
+        operation_id='get_weather_and_shipment_data',
+        parameters=[
+            openapi.Parameter(
+                name='tracking_number',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='The tracking number of the shipment',
+                required=True
+            ),
+            openapi.Parameter(
+                name='carrier',
+                in_=openapi.IN_QUERY,
+                type=openapi.TYPE_STRING,
+                description='The carrier of the shipment',
+                required=True
+            )
+        ],
+        responses={
+            200: openapi.Response(
+                description='Successful retrieval of weather and shipment data',
+                examples={
+                    'weather_data':
+                        """
+                        Weather Information for Paris
+                        Temperature: 7.14°C
+                        Weather: overcast clouds
+                        """,
+                    'shipments':
+                        """
+                        Shipment Details
+                        Shipment: TN12345678 - DHL - in-transit
+                        Shipment: TN12345678 - DHL - in-transit
+                        """
+                }
+            ),
+        }
+    ))
     def get(self, request: HttpRequest) -> HttpResponse:
         """
         Handles GET requests for the weather shipment view.
@@ -78,7 +120,7 @@ class WeatherShipmentView(View):
         - HttpResponse: Rendered HTML template.
         """
         logger.info("GET request received")
-        return self.render_template(request)
+        return Response(status=status.HTTP_200_OK)
 
     @method_decorator(name='post', decorator=swagger_auto_schema(
         request_body=openapi.Schema(
@@ -117,18 +159,33 @@ class WeatherShipmentView(View):
 
         Returns:
         - HttpResponse: Rendered HTML template with weather and shipment data.
+
+        This method processes POST requests to retrieve weather and shipment data based on the input provided. It
+        expects a payload containing 'tracking_number' and 'carrier' fields. If the request is made from the Swagger
+        UI, it allows default values ('TN12345680' for tracking number and 'DPD' for the carrier) to be used if no
+        input is provided. The method fetches shipment details and location information based on the provided
+        tracking number and carrier, then fetches weather data for that location. Finally, it renders an HTML
+        template with the retrieved weather and shipment data.
         """
         logger.info("Post request received")
-        tracking_number = request.POST.get('tracking_number')
-        carrier = request.POST.get('carrier')
+        serializer = TrackingCarrierSerializer(data=request.data)
+        if serializer.is_valid():
+            tracking_number = request.POST.get('tracking_number')
+            carrier = request.POST.get('carrier')
+            referer = request.META.get("HTTP_REFERER")
+            logger.info(referer)
+            if referer and "swagger" in referer:
+                if tracking_number is None and carrier is None:
+                    tracking_number = "TN12345680"
+                    carrier = "DPD"
+            shipments = get_shipment_by_tracking_number_and_carrier(tracking_number, carrier)
+            location = get_receiver_city(shipments)
+            weather_data = WeatherService.get_weather_data(location)
 
-        shipments = get_shipment_by_tracking_number_and_carrier(tracking_number, carrier)
-        location = get_receiver_city(shipments)
-        weather_data = WeatherService.get_weather_data(location)
+            context = {
 
-        context = {
-
-            'weather_data': weather_data,
-            'shipments': shipments,
-        }
-        return render(request, self.template_name, context)
+                'weather_data': weather_data,
+                'shipments': shipments,
+            }
+            return render(request, self.template_name, context)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

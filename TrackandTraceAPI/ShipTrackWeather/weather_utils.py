@@ -9,7 +9,7 @@ class WeatherService:
     """
     Provides methods to fetch weather data using an external API and configuration settings.
     """
-    CONFIG_FILE : str = "environment.ini"
+    CONFIG_FILE: str = "environment.ini"
 
     @staticmethod
     def read_config() -> Optional[ConfigParser]:

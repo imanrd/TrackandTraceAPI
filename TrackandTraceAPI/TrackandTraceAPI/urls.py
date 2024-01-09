@@ -23,7 +23,7 @@ from django.urls import path
 urlpatterns = [
     path('', home_page, name='home'),
     path('weather_shipment/', WeatherShipmentView.as_view(), name='weather_shipment'),
-    path("admin/", admin.site.urls),
+    path('admin/', admin.site.urls),
 ]
 
 urlpatterns += swagger_urls
