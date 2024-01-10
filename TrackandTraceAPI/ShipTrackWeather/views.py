@@ -9,7 +9,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from rest_framework import status
 from typing import Union, List
-from .serializers import ShipmentSerializer, TrackingCarrierSerializer
+from .serializers import TrackingCarrierSerializer
 from django.http import HttpRequest, HttpResponse
 
 
@@ -170,10 +170,10 @@ class WeatherShipmentView(APIView):
         logger.info("Post request received")
         serializer = TrackingCarrierSerializer(data=request.data)
         if serializer.is_valid():
-            tracking_number = request.POST.get('tracking_number')
-            carrier = request.POST.get('carrier')
+            tracking_number = serializer.validated_data.get('tracking_number')
+            carrier = serializer.validated_data.get('carrier')
             referer = request.META.get("HTTP_REFERER")
-            logger.info(referer)
+            logger.info(f"Referer: {referer}")
             if referer and "swagger" in referer:
                 if tracking_number is None and carrier is None:
                     tracking_number = "TN12345680"
