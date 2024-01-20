@@ -1,17 +1,17 @@
-# Use an official Python runtime as a parent image
+
 FROM python:3.9
 
-# Set environment variables
+
 ENV PYTHONUNBUFFERED 1
 ENV DJANGO_SETTINGS_MODULE TrackandTraceAPI.settings
 
-# Create and set the working directory
+
 WORKDIR /usr/src/TrackandTraceAPI
 
-# Copy the current directory contents into the container
+
 COPY . .
 
-# Install any needed packages specified in requirements.txt
+
 RUN pip install -r requirements.txt
 
 
